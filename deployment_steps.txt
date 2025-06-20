@@ -1,0 +1,33 @@
+#Configure access to your EKS cluster
+aws eks update-kubeconfig --name dashboard-app --region us-west-1
+
+# Create IAM OIDC Provider for EKS
+eksctl utils associate-iam-oidc-provider --cluster dashboard-app --region us-west-1 --approve
+
+# Deploy the eks templates
+kubectl apply -f namespace.yaml
+kubectl apply -f frontend-deployment.yaml
+kubectl apply -f dashboard-deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f ingress.yaml
+
+
+# Install the AWS Load Balancer Controller
+helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=dashboard-app \
+  --set serviceAccount.create=false \
+  --set region=us-west-1 \
+  --set vpcId=vpc-074ed8073bb88a2d0 \
+  --set serviceAccount.name=aws-load-balancer-controller
+
+
+# Install Fluent Bit via Helm for CloudWatch Logs to Log Group
+helm upgrade --install aws-for-fluent-bit aws-observability/aws-for-fluent-bit \
+  --namespace aws-observability \
+  --set cloudWatch.enabled=true \
+  --set cloudWatch.region=us-west-1 \
+  --set cloudWatch.logGroupName=eks-app-logs \
+  --set serviceAccount.create=true \
+  --set serviceAccount.name=fluent-bit-sa \
+  --set cloudWatch.logStreamPrefix=from-fluent-bit-

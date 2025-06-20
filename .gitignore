@@ -1,0 +1,10 @@
+# Compiled files
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+IaC/.terraform.lock.hcl
+.DS_Store
+docker_images/.DS_Store
+# Module directory
+.terraform/
+IaC/.terraform/

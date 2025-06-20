@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS API Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function fetchData() {
+            try {
+                const response = await fetch('https://1n2pmvpld0.execute-api.us-west-1.amazonaws.com/prod/data');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const rawData = await response.json();
+                console.log('Raw API Response:', rawData);
+
+                // Extract and parse the body field
+                const data = JSON.parse(rawData.body);
+                console.log('Parsed Data:', data);
+
+                const tableBody = document.getElementById('data-body');
+                if (!tableBody) {
+                    console.error("Element with ID 'data-body' not found.");
+                    return;
+                }
+
+                tableBody.innerHTML = '';
+
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${item.instanceid || 'N/A'}</td>
+                                         <td>${item.action || 'N/A'}</td>
+                                         <td>${item.region || 'N/A'}</td>`;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    console.error('Unexpected data format:', data);
+                    document.getElementById('error-message').innerText = 'Invalid data format received.';
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('error-message').innerText = 'Failed to load data.';
+            }
+        });
+
+        function goToPage2() {
+            window.location.href = "/frontend";  // Update this path if needed
+        }
+    </script>
+</head>
+<body>
+    <h1>AWS API Data</h1>
+    <p id="error-message" class="error-message"></p> <!-- Error message display -->
+
+    <table>
+        <thead>
+            <tr>
+                <th>Instance ID</th>
+                <th>Action</th>
+                <th>Region</th>
+            </tr>
+        </thead>
+        <tbody id="data-body"></tbody>
+    </table>
+
+    <button onclick="goToPage2()">Add more instances</button>
+</body>
+</html>

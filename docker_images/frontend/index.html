@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AWS EC2 Instance Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      margin-top: 10px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .radio-group {
+      margin: 15px 0;
+    }
+
+    .radio-group label {
+      font-weight: normal;
+      margin-right: 10px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 20px;
+      text-align: center;
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Instance Stop & Start</h2>
+    <p>Enter the Instance ID and Region, then choose an action.</p>
+
+    <form id="instanceForm">
+      <label for="instanceId">Instance ID</label>
+      <input type="text" id="instanceId" name="fname" required>
+
+      <label for="region">Region</label>
+      <input type="text" id="region" name="lname" value="us-east-1" required>
+
+      <div class="radio-group">
+        <label><input type="radio" name="action" value="START" required> Start</label>
+        <label><input type="radio" name="action" value="STOP" required> Stop</label>
+      </div>
+
+      <button type="submit">Send Request</button>
+      <button onclick="goToPage2()">Check Added Instances</button>
+      <div class="message" id="responseMsg"></div>
+    </form>
+  </div>
+  <button onclick="goToPage2()">Check Added Instances</button>
+  <script>
+    document.getElementById('instanceForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const instanceId = document.getElementById('instanceId').value;
+      const region = document.getElementById('region').value;
+      const action = document.querySelector('input[name="action"]:checked').value;
+
+      const payload = {
+        fname: instanceId,
+        lname: region,
+        action: action
+      };
+
+      try {
+        const response = await fetch('https://1n2pmvpld0.execute-api.us-west-1.amazonaws.com/prod/data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        document.getElementById('responseMsg').textContent = 'Data saved successfully';
+        document.getElementById('responseMsg').className = 'message';
+      } catch (error) {
+        document.getElementById('responseMsg').textContent = 'Error: ' + error.message;
+        document.getElementById('responseMsg').className = 'message error';
+      }
+    });
+    function goToPage1() {
+            window.location.href = "/dashboard";  // Update this path if needed
+        }
+  </script>
+
+</body>
+</html>
