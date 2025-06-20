@@ -60,6 +60,7 @@ kubectl apply -f ../k8s-manifests/frontend-deployment.yaml
 kubectl apply -f ../k8s-manifests/dashboard-deployment.yaml
 kubectl apply -f ../k8s-manifests/service.yaml
 kubectl apply -f ../k8s-manifests/ingress.yaml
+kubectl apply -f ../k8s-manifests/cw_namespace.yaml
 ```
 
 # Install the AWS Load Balancer Controller
